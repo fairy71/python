@@ -1,0 +1,51 @@
+import pandas as pd
+
+# Load the dataset
+df = pd.read_csv('customers.csv')
+
+print("Raw Data:")
+print(df)
+
+# 1. Remove Duplicates
+df = df.drop_duplicates()
+print("\nAfter Removing Duplicates:")
+print(df)
+
+# 2. Handle Missing Values
+# Show where missing values are
+print("\nMissing Values Count:")
+print(df.isnull().sum())
+
+# Fill missing Age with mean
+df['Age'] = df['Age'].fillna(df['Age'].mean())
+
+# Fill missing Email with placeholder
+df['Email'] = df['Email'].fillna('noemail@unknown.com')
+
+# Fill missing Country with mode
+df['Country'] = df['Country'].replace('-', pd.NA)
+df['Country'] = df['Country'].fillna(df['Country'].mode()[0])
+
+# Drop rows where PurchaseAmount or Phone is missing
+df = df.dropna(subset=['PurchaseAmount', 'Phone'])
+
+# 3. Clean Formatting
+# Standardize country names to title case
+df['Country'] = df['Country'].str.title()
+
+# Normalize phone format (remove dashes)
+df['Phone'] = df['Phone'].str.replace('-', '', regex=False)
+
+# 4. Convert Date Column to Datetime
+df['JoinDate'] = pd.to_datetime(df['JoinDate'], errors='coerce')
+
+# 5. Convert PurchaseAmount to numeric
+df['PurchaseAmount'] = pd.to_numeric(df['PurchaseAmount'], errors='coerce')
+
+# 6. Final Check
+print("\nCleaned Data:")
+print(df)
+
+# 7. Save Cleaned Data
+df.to_csv('customers_cleaned.csv', index=False)
+print("\nCleaned data saved to 'customers_cleaned.csv'")
